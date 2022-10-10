@@ -1,8 +1,28 @@
 package com.example.inflearnthejavatest;
 
 public class Study {
+	public Study(int limit, String name) {
+		this.limit = limit;
+		this.name = name;
+	}
+
 	private StudyStatus status = StudyStatus.DRAFT;
 	private int limit;
+
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return "Study{" +
+				"status=" + status +
+				", limit=" + limit +
+				", name='" + name + '\'' +
+				'}';
+	}
 
 	public Study(int limit){
 		if(limit < 0)

@@ -5,6 +5,18 @@ import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregationException;
+import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
+import org.junit.jupiter.params.converter.ArgumentConversionException;
+import org.junit.jupiter.params.converter.ConvertWith;
+import org.junit.jupiter.params.converter.SimpleArgumentConverter;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
 import java.util.function.Supplier;
@@ -95,6 +107,13 @@ class StudyTest {
 		assertThat(actual.getLimit()).isGreaterThan(0);
 	}
 
+	@FastTest //@Test + @Tag("fast") 를 내포함 -> 문자열을 직접 입력하는 부분이 없기 때문에 오류 가능성 적어짐
+	@DisplayName("스터디 만들기 fast")
+	void create_new_study_test_composed_Annotation() {//로컬 환경
+		Study actual = new Study(10);
+		assertThat(actual.getLimit()).isGreaterThan(0);
+	}
+
 	@Test
 	@DisplayName("스터디 만들기 slow")
 	@Tag("slow")//원격 환경
@@ -102,6 +121,68 @@ class StudyTest {
 		Study actual = new Study(10);
 		assertThat(actual.getLimit()).isGreaterThan(0);
 	}
+
+
+	@DisplayName("스터디 만들기")
+	@RepeatedTest(value = 10, name = "{displayName}, {currentRepetition}/{totalRepetition}")//반복할 테스트의 횟수 작성
+	void repeatTest(RepetitionInfo repetitionInfo )
+	{
+		//인자 RepetitionInfo를 통해 몇번을 반복하는지, 총 몇번을 반복해야 하는지 알 수 있음
+		System.out.println("test"+repetitionInfo.getCurrentRepetition() + "/" + repetitionInfo.getTotalRepetitions());
+	}
+
+	@DisplayName("스터디 만들기")
+	@ParameterizedTest(name = "{index} {displayName} message={0}")//각 파라미터 개수만큼 반복하면서 실행한다.
+	@ValueSource(strings = {"날씨가", "많이", "추워지고", "있네요"})//4가지의 파라미터 경우의 수를 제공
+	@EmptySource//파라미터에 빈 값을 넣어준다 //빈 값 + Null => @NullAndEmptySource
+	@NullSource//파라미터에 null을 넣어준다.
+	void parameterizedTest(@ConvertWith(StudyConverter.class) Study study)
+	{
+		System.out.println(study.getLimit());
+	}
+	//integer 값인데 Study 로 변환하고 싶음 -> "converter" 만들기
+	static class StudyConverter extends SimpleArgumentConverter{//1개의 arg일 때
+		@Override
+		protected Object convert(Object source, Class<?> targetType) throws ArgumentConversionException
+		{
+			assertEquals(Study.class, targetType, "Can only to Study");
+			return new Study(Integer.parseInt(source.toString()));
+		}
+
+
+	}
+
+	@DisplayName("스터디 만들기")
+	@ParameterizedTest(name = "{index} {displayName} message={0}")//각 파라미터 개수만큼 반복하면서 실행한다.
+	@CsvSource({"10, '자바 스터디'", "20 스프링"})
+	void parameterizedTest2(Integer limit, String name)
+	{
+		Study study = new Study(limit, name);
+		System.out.println(study);
+	}
+
+	@DisplayName("스터디 만들기")
+	@ParameterizedTest(name = "{index} {displayName} message={0}")//각 파라미터 개수만큼 반복하면서 실행한다.
+	@CsvSource({"10, '자바 스터디'", "20 스프링"})
+	void parameterizedTest3(ArgumentsAccessor argumentsAccessor)// 방법2 (@AggregateWith(StudyAggregator.class) Study study)
+	{
+		Study study = new Study(argumentsAccessor.getInteger(0), argumentsAccessor.getString(1));
+		System.out.println(study);
+	}
+
+	static class StudyAggregator implements ArgumentsAggregator{// 반드시 static 이거나 public 이어야 한다
+
+		@Override
+		public Object aggregateArguments(ArgumentsAccessor argumentsAccessor, ParameterContext parameterContext) throws ArgumentsAggregationException {
+			return new Study(argumentsAccessor.getInteger(0), argumentsAccessor.getString(1));
+		}
+	}
+
+
+
+
+
+
 
 
 
