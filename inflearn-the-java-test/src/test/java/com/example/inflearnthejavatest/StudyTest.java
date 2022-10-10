@@ -5,7 +5,9 @@ import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.ArgumentsAccessor;
 import org.junit.jupiter.params.aggregator.ArgumentsAggregationException;
@@ -25,10 +27,18 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
-
+//@ExtendWith(FindSlowTestExtension.class)//커스터마이징 못함(단점)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)//어떻게 디스플레이할 것인지에대한 전략 구현체를 넣는다.
-class StudyTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)//메소드 전체 하나의 인스턴스 공유
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)//순서 정해줌 -> 메소드에 @Order(num)순위를 적어준다
+class StudyTest {// 이 클래스는 test 실행마다 인스턴스를 만든다. -> test 간의 의존성을 없애기 위해서 (테스트 순서는 정해진 것이 아니다)
+	//하지만 클래스 당 하나의 인스턴스를 만들어서 공유하는 방법이 있다.
 
+	int value = 1;
+
+	@RegisterExtension//필드 내에서 사용 가능 -> 인스턴스 만들어서 등록 -> 커스터마이징 가능
+	static FindSlowTestExtension findSlowTestExtension = new FindSlowTestExtension(1000L);
+	@Order(1)
 	@Test
 	@DisplayName("스터디 만들기")
 	void create() {
@@ -64,9 +74,11 @@ class StudyTest {
 
 
 
+	@Order(2)
 	@Test
 	//@Disabled -> 이 테스트만 실행하지 않도록 함
-	void create_new_study() {
+	void create_new_study() throws InterruptedException {
+		Thread.sleep(1005L);//느린 테스트
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Study(-10));
 		System.out.println("create1");
 		assertTimeout(Duration.ofMillis(1000), () -> {
@@ -178,7 +190,8 @@ class StudyTest {
 		}
 	}
 
-
+//순서를 명확하게 드러내지 않은 이유는 제대로된 단위 테스트는 의존성이 없어야 한다. (다른 테스트 코드에 영향을 미치면 안 된다)
+	//하지만 시나리오 테스트를 하고 싶을 경우 순차적으로 유즈 케이스마다 상태 정보를 유지하면서 데이터도 공유해야 하므로 인스턴스를 매번 만드는 거
 
 
 
@@ -189,7 +202,7 @@ class StudyTest {
 
 
 	@BeforeAll //모든 테스트를 실행하기 전에 딱 한 번만 호출된다.
-	static void beforeAll()//이 어노테이션을 사용하기 위해서 반드시 static만 가능하다 private은 불가능 , default는 가능
+	static void beforeAll()//이 어노테이션을 사용하기 위해서 반드시 static만 가능하다 private은 불가능 , default는 가능 -> 하지만 모든 메소드들에 대해 인스턴스를 1개만 만든다면 적용 x
 	{//리턴타입 불가능 => 꼭 "static void"라고 생각하기
 		System.out.println("before all");
 	}
