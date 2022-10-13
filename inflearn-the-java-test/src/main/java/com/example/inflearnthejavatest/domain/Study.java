@@ -1,4 +1,4 @@
-package com.example.inflearnthejavatest;
+package com.example.inflearnthejavatest.domain;
 
 public class Study {
 	public Study(int limit, String name) {
