@@ -23,7 +23,7 @@ public class FindSlowTestExtension implements BeforeTestExecutionCallback, After
 		//SlowTest annotation = requiredTestMethod.getAnnotation(SlowTest.class);//자바 리플렉션
 		//if(annotation != null){
 
-		//}
+		//
 		ExtensionContext.Store store =getStore(context);//데이터를 넣고 빼
 		long start_time = store.remove("STATR_TIME", long.class);
 		long duration = System.currentTimeMillis() - start_time;

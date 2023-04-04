@@ -2,7 +2,6 @@ package com.example.inflearnthejavatest.study;
 
 import com.example.inflearnthejavatest.domain.Study;
 import lombok.RequiredArgsConstructor;
-import me.whiteship.inflearnthejavatest.domain.Study;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

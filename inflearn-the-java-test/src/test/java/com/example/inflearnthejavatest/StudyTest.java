@@ -27,7 +27,8 @@ import static org.junit.jupiter.api.Assumptions.*;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)//어떻게 디스플레이할 것인지에대한 전략 구현체를 넣는다.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)//메소드 전체 하나의 인스턴스 공유
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)//순서 정해줌 -> 메소드에 @Order(num)순위를 적어준다
-class StudyTest {// 이 클래스는 test 실행마다 인스턴스를 만든다. -> test 간의 의존성을 없애기 위해서 (테스트 순서는 정해진 것이 아니다)
+class StudyTest {// 이 클래스는 test 실행마다 인스턴스를 만든다.(테스트 메소드마다 다른 StudyTest의 인스턴스가 다르다) -> test 간의 의존성을 없애기 위해서 (테스트 순서는 정해진 것이 아니다)
+	//테스트 간 의존성을 없애자
 	//하지만 클래스 당 하나의 인스턴스를 만들어서 공유하는 방법이 있다.
 
 	int value = 1;
@@ -132,7 +133,7 @@ class StudyTest {// 이 클래스는 test 실행마다 인스턴스를 만든다
 
 
 	@DisplayName("스터디 만들기")
-	@RepeatedTest(value = 10, name = "{displayName}, {currentRepetition}/{totalRepetition}")//반복할 테스트의 횟수 작성
+	@RepeatedTest(value = 10, name = "{displayName}, {currentRepetition}/{totalRepetition}")//반복할 테스트의 횟수 작성 (표시)
 	void repeatTest(RepetitionInfo repetitionInfo )
 	{
 		//인자 RepetitionInfo를 통해 몇번을 반복하는지, 총 몇번을 반복해야 하는지 알 수 있음
@@ -140,7 +141,7 @@ class StudyTest {// 이 클래스는 test 실행마다 인스턴스를 만든다
 	}
 
 	@DisplayName("스터디 만들기")
-	@ParameterizedTest(name = "{index} {displayName} message={0}")//각 파라미터 개수만큼 반복하면서 실행한다.
+	@ParameterizedTest(name = "{index} {displayName} message={0}")//각 파라미터 개수만큼 반복하면서 실행한다. {0}은 파라미터이다.
 	@ValueSource(strings = {"날씨가", "많이", "추워지고", "있네요"})//4가지의 파라미터 경우의 수를 제공
 	@EmptySource//파라미터에 빈 값을 넣어준다 //빈 값 + Null => @NullAndEmptySource
 	@NullSource//파라미터에 null을 넣어준다.
@@ -163,7 +164,7 @@ class StudyTest {// 이 클래스는 test 실행마다 인스턴스를 만든다
 	@DisplayName("스터디 만들기")
 	@ParameterizedTest(name = "{index} {displayName} message={0}")//각 파라미터 개수만큼 반복하면서 실행한다.
 	@CsvSource({"10, '자바 스터디'", "20 스프링"})
-	void parameterizedTest2(Integer limit, String name)
+	void parameterizedTest2(Integer limit, String name)//2개의 아규먼트 타입일 경우
 	{
 		Study study = new Study(limit, name);
 		System.out.println(study);
@@ -172,7 +173,7 @@ class StudyTest {// 이 클래스는 test 실행마다 인스턴스를 만든다
 	@DisplayName("스터디 만들기")
 	@ParameterizedTest(name = "{index} {displayName} message={0}")//각 파라미터 개수만큼 반복하면서 실행한다.
 	@CsvSource({"10, '자바 스터디'", "20 스프링"})
-	void parameterizedTest3(ArgumentsAccessor argumentsAccessor)// 방법2 (@AggregateWith(StudyAggregator.class) Study study)
+	void parameterizedTest3(ArgumentsAccessor argumentsAccessor)// 방법2 2개의 아규먼트를 한 번에 받는 방법(@AggregateWith(StudyAggregator.class) Study study)
 	{
 		Study study = new Study(argumentsAccessor.getInteger(0), argumentsAccessor.getString(1));
 		System.out.println(study);

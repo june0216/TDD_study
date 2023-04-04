@@ -1,6 +1,21 @@
 package com.example.inflearnthejavatest.domain;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+@Entity
+@Getter
+@Setter @NoArgsConstructor
 public class Study {
+	@Id
+	@GeneratedValue
+	private Long id;
 	public Study(int limit, String name) {
 		this.limit = limit;
 		this.name = name;
@@ -11,6 +26,8 @@ public class Study {
 
 	private String name;
 
+	@ManyToOne
+	private Member owner;
 	public String getName() {
 		return name;
 	}
@@ -39,4 +56,5 @@ public class Study {
 	public int getLimit() {
 		return limit;
 	}
+
 }

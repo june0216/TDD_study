@@ -2,17 +2,18 @@ package com.example.inflearnthejavatest.study;
 
 import com.example.inflearnthejavatest.domain.Member;
 import com.example.inflearnthejavatest.domain.Study;
+import com.example.inflearnthejavatest.member.MemberService;
 
 import java.util.Optional;
 
 public class StudyService {
-	private final MemberSerivce memberSerivce;
+	private final MemberService memberService;
 	private final StudyRepository repository;
 
-	public StudyService(MemberSerivce memeberSerivce, StudyRepository repository) {
-		assert memberService != null;//null이면 안된다.
+	public StudyService(MemberService memberService, StudyRepository repository) {
+		assert memberService != null;//null이면 안된다. -> 자바의 assert 키워드를 통해서 null이면 nullpointerException
 		assert repository != null;
-		this.memeberSerivce = memeberSerivce;
+		this.memberService = memberService;
 		this.repository = repository;
 	}
 
